@@ -1,0 +1,49 @@
+﻿@page "/"
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@attribute [StreamRendering]
+
+
+<PageTitle>Load test</PageTitle>
+
+<h1>Load test</h1>
+
+<p>
+    unloaded contest status [@DateTime.Now]
+    <br />
+    @contexStatus
+</p>
+<br />
+
+<p>
+    <button class="btn btn-info" @onclick="RefreshInfo">Refresh</button>
+
+    <br />
+    <br />
+    <button class="btn btn-warning" @onclick="Collect">Collect</button>
+    <label for="clearCheck">clear framework cache</label>
+    <InputCheckbox id="clearCheck" @bind-Value="clearFramewokCache" />
+
+</p>
+
+
+@code {
+
+    private string? contexStatus;
+
+    private bool clearFramewokCache;
+
+    private void RefreshInfo()
+    {
+        contexStatus = DynamicFormRepo.Info;
+    }
+
+    private void Collect()
+    {
+        DynamicFormRepo.Cleanup( clearFramewokCache  );
+
+        RefreshInfo();
+    }
+
+}

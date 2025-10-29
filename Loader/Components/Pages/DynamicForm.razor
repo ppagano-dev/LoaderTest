@@ -1,0 +1,78 @@
+﻿@page "/dynamicForm"
+
+
+@using Microsoft.AspNetCore.Authorization
+
+@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using System.Runtime.Loader
+@using System.Reflection
+
+@implements IDisposable
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@attribute [StreamRendering]
+
+
+
+
+@if( Error is not null )
+{
+    <div class="alert alert-danger">
+        <h2 class="alert-heading">Errore</h2>
+        <p>@Error.Message</p>
+    </div>
+}
+
+@if (FormType is null) {   }
+else
+{
+    <DynamicComponent Type="FormType"  @rendermode="RenderMode.InteractiveServer" />
+}
+
+@code {
+
+
+
+    protected Type? FormType { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Error = null;
+
+        await Task.Delay( 123 );
+
+        try
+        {
+            context = DynamicFormRepo.CreateContext();
+
+            var binPath = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) ?? "./";
+            var guiPath = Path.Combine( binPath, "TestGui.dll" );
+
+            var guiAssembly = context.LoadFromAssemblyPath( guiPath );
+
+            FormType = guiAssembly.GetType( "TestGui.TestForm" );
+
+        }
+        catch (Exception ex)
+        {
+            Error = ( ex );
+            await InvokeAsync( StateHasChanged );
+        }
+    }
+
+    public void Dispose()
+    {
+        DynamicFormRepo.ReleaseContext( context );
+        context = null;
+        FormType = null;
+
+    }
+
+    protected Exception? Error { get; private set; }
+
+    private AssemblyLoadContext? context;
+
+}
