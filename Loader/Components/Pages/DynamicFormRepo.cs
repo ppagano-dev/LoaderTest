@@ -33,19 +33,16 @@ internal class DynamicFormRepo
         foreach( var ctx in toUnload )
         {
             ctx.Unload();
-            uloadedContexts.Add( new WeakReference( ctx, trackResurrection: true ) );
+            uloadedContexts.Add( new WeakReference( ctx ) ); // , trackResurrection: true
         }
 
 
         if( clearFrameworkCaches )
         {
-            ClearFormsReferences( "Microsoft.AspNetCore.Components.Reflection.ComponentProperties", "_cachedWritersByType" );
-            ClearFormsReferences( "Microsoft.AspNetCore.Components.ComponentFactory", "_cachedComponentTypeInfo" );
+            ClearFrameworkReferences( "Microsoft.AspNetCore.Components.Reflection.ComponentProperties", "_cachedWritersByType" );
 
-            ClearFormsReferences( "Microsoft.AspNetCore.Components.CascadingParameterState", "_cachedInfos" );
-
-            // seems not exists
-            ClearFormsReferences( "Microsoft.AspNetCore.Components.RootComponentTypeCache", "_typeToKeyLookUp" );
+            ClearFrameworkReferences( "Microsoft.AspNetCore.Components.CascadingParameterState", "_cachedInfos" );
+            ClearFrameworkReferences( "Microsoft.AspNetCore.Components.ComponentFactory", "_cachedComponentTypeInfo" );
         }
 
 
@@ -89,7 +86,7 @@ internal class DynamicFormRepo
     }
 
     
-    private static void ClearFormsReferences( string typeName, string dictName )
+    private static void ClearFrameworkReferences( string typeName, string dictName )
     {
         var type = typeof( Microsoft.AspNetCore.Components.ComponentBase ).Assembly.GetType( typeName );
         if( type is null )

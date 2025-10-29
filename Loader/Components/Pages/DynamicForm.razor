@@ -17,7 +17,6 @@
 
 
 
-
 @if( Error is not null )
 {
     <div class="alert alert-danger">
@@ -26,8 +25,7 @@
     </div>
 }
 
-@if (FormType is null) {   }
-else
+@if( FormType is not null )
 {
     <DynamicComponent Type="FormType"  @rendermode="RenderMode.InteractiveServer" />
 }
@@ -35,8 +33,9 @@ else
 @code {
 
 
+    protected Type?   FormType { get; private set; }
+    protected Exception? Error { get; private set; }
 
-    protected Type? FormType { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,17 +60,21 @@ else
             Error = ( ex );
             await InvokeAsync( StateHasChanged );
         }
+
     }
+
+
 
     public void Dispose()
     {
         DynamicFormRepo.ReleaseContext( context );
+
         context = null;
         FormType = null;
-
     }
 
-    protected Exception? Error { get; private set; }
+
+    
 
     private AssemblyLoadContext? context;
 
